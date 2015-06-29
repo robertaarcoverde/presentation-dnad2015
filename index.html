@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Reescrevendo um Processador de Mensagens</title>
+
+		<meta name="description" content="Reescrevendo um Processador de Mensagens no Stack Overflow Careers">
+		<meta name="author" content="Roberta Arcoverde">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.min.css">
+		<link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+		<script>
+			if( window.location.search.match( /print-pdf/gi ) ) {
+				var link = document.createElement( 'link' );
+				link.rel = 'stylesheet';
+				link.type = 'text/css';
+				link.href = 'css/print/pdf.css';
+				document.getElementsByTagName( 'head' )[0].appendChild( link );
+			}
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h2>Reescrevendo um Processador de Mensagens</h2>
+					<h3>uma história de fracassos</h3>
+					<p>
+						Roberta Arcoverde / <a href="http://twitter.com/rla4">@rla4</a>
+					</p>
+					<p>
+						<small>.NET Architects Days 2015</small>						
+					</p>
+				</section>
+
+				<section>					
+					<h2>/whois roberta</h2>
+					<ul>
+						<li>recifense</li>
+						<li>cientista da computação, UFPE, 2008</li>
+						<li>mestre em informática, PUC-Rio, 2012</li>
+						<li>participante do DNA desde 2008</li>
+						<li>full-stack developer, Stack Exchange, 2014</li>						
+						<li>mãe do Dostoievski e do Turing</li>
+					</ul>
+				</section>
+
+				<section data-background="white">
+					<p>				
+						<img src="img/so-logo.png" style="border:0; background:none; box-shadow:none; display:block"></img>					
+					</p>					
+					<p id="fragments_so">						
+						<ul>
+							<li class="fragment">começou em 2008</li>
+							<li class="fragment"><strong>5MM</strong> usuários cadastrados</li>
+							<li class="fragment"><strong>50MM</strong> visitantes únicos por mês</li>
+							<li class="fragment"><strong>700MM</strong> page views por mês</li>
+							<li class="fragment">top <strong>50</strong> sites mais acessados do mundo*</li>
+						</ul>
+						<small class="fragment">*Alexa, Quantcast</small>
+					</p>
+				</section>
+
+				<section data-background="white">	
+					<h2>&gt;140 sites</h2>
+					<img src="img/stackexchangesites.png" style="border:0;  box-shadow:none;"></img>			
+				</section>
+
+				<section data-background="#fde3ce">
+					<img src="img/careers-logo.png" style="border:0; background:none; box-shadow:none; display:block"></img>	
+					<p class="fragment">
+						450k usuários registrados, ~4000 vagas ativas/dia
+					</p>					
+					<p id="fragments_so" style="color:#b9bdc1">						
+						<ul>
+							<li class="fragment">começou em 2010</li>
+							<li class="fragment">c#, asp.net mvc</li>
+							<li class="fragment">sql server</li>
+							<li class="fragment">elasticsearch</li>
+							<li class="fragment">redis</li>
+							<li class="fragment">11 desenvolvedores, 3 designers</li>
+						</ul>
+					</p>
+				</section>
+
+				<section data-background="white">
+					<h2>tudo isso com apenas 9 servidores*</h2>
+					<img src="img/infrastructure.png" style="border:0; background:none; box-shadow:none;"></img>
+					<p><small><em>*mas 1 bastaria</em></small></p>
+				</section>
+
+				<section>o careers tem algumas necessidades especiais</section>
+
+				<section data-background="white">
+					<h2>upload de arquivos (av scans)</h2>
+					<table><tr>
+						<td><img src="img/upload_resume.png" style="border:0; background:none; box-shadow:none;"></img>	</td>
+						<td><img src="img/attach-file.png" style="border:0; background:none; box-shadow:none;"></img>	</td>
+					</tr></table>
+				</section>
+
+				<section data-background="white">
+					<h2>integração com outros sistemas</h2>
+					<img src="img/sync-third-parties.png" style="border:0; background:none; box-shadow:none;"></img>
+				</section>
+
+				<section data-background="#F48024">
+					<p style="color:white; font-size:1.5em">
+						precisamos executar tarefas <strong>potencialmente longas</strong> em background, de forma <strong>assíncrona</strong>, respeitando as restrições de performance e infraestrutura existentes
+					</p>
+				</section>
+
+				<section>
+					<h2>surge o backoffice</h2>
+					<img src="img/backoffice-is-a-mess.png" style="border:0; background:none; box-shadow:none; display:block; margin-left:auto; margin-right:auto"></img>
+					<small>e aí vocês já começam a entender o título da palestra</small>
+				</section>
+
+				<section data-background="#99d4ff">
+					<h2>O que o Backoffice faz?</h2>
+					<ul>
+						<li class="fragment">virus scan</li>
+						<li class="fragment">atualização de índices elasticsearch</li>
+						<li class="fragment">sincronização com sistemas externos (github, codeplex...)</li>
+						<li class="fragment">emails</li>
+					</ul>
+					<img class="fragment" src="img/quote2.png" style="border:0; background:none; box-shadow:none; display:block; margin-left:auto; margin-right:auto"></img>
+				</section>
+
+				<section>
+					<h3>Enviando uma mensagem</h3>
+					<pre>
+						<code class="java">
+							// Careers.Controllers.PingController.TestPing()
+
+							MessageFactory.Publish(new Ping());
+						</code>
+					</pre>
+					<h3>Recebendo e processando uma mensagem</h3>
+					<pre>
+						<code class="java">
+							// Careers.Backoffice.PingService
+
+							// método responsável por processar a mensagem do tipo Ping
+							public object Any (Ping pingMessage) {  }
+						</code>
+					</pre>
+					<p class="fragment"><small><em>parece simples, porque é</em></small></p>
+				</section>
+
+				<section data-background="white">
+					<h3>Enviando uma mensagem - Fluxo</h3>
+					<img src="img/backoffice_flow.png" style="border:0; background:none; box-shadow:none; display:block; margin-left:auto; margin-right:auto"></img>
+					<p class="fragment"><small><em>parece complicado, porque é</em></small></p>
+				</section>
+
+				<section>
+					<h2>Arquitetura das mensagens</h2>
+					<pre>
+						<code>
+    public class ScanFile
+    {
+        public int FileId { get; set; }
+        public int MessageAttachmentId { get; set; }
+    }
+						</code>
+					</pre>
+					<img class="fragment" src="img/redis-message.png" style="border:0; background:none; box-shadow:none; display:block; margin-left:auto; margin-right:auto"></img>
+				</section>
+
+				<section data-background="#e6f4ff">
+					<h2>Arquitetura dos serviços</h2>
+					<ul>
+						<li>suporte a callbacks (como requisições http)</li>
+						<li>contexto transacional per-request</li>
+					</ul>
+					<pre>
+						<code>
+    public class ScanFileService : BackOfficeService
+    {
+        private readonly IVirusScanner _virusScanner;
+        private readonly IFileService _fileService;
+
+        public object Any(ScanFile request)
+        {
+            var file = _fileService.GetFile(request.FileId);
+            var fileIsSafe = (file.ScanDate != null && file.ScanError == null);
+            string scanError = null;
+            if (!fileIsSafe)
+            {
+                fileIsSafe = _virusScanner.TryScan(file.BinaryData, out scanError);
+            }
+
+            return new ScanFileResponse
+            {
+                FileId = request.FileId,
+                MessageAttachmentId = request.MessageAttachmentId,
+                IsSafe = fileIsSafe,
+                ScanError = scanError,
+            };
+        }
+    }							
+						</code>
+					</pre>
+				</section>
+
+				<section data-background="white">
+					<h3>tão lindo que virou produto</h3>
+					<img src="img/servicestack.png" style="border:0; background:none; box-shadow:none; display:block; margin-left:auto; margin-right:auto"></img>
+					<p>&nbsp;</p>
+					<p class="fragment"><em>*mas nem tudo foi fácil</em></p>
+				</section>
+
+				<section data-background="#f9b885">
+					<h2>Fracasso #1: kd os emails?</h2>
+					<ul>
+						<li class="fragment">bug gerou <strong>500.000</strong> mensagens de sincronização com o GitHub de uma só vez</li>
+						<li class="fragment">backoffice ficou <strong>sobrecarregado</strong> e mensagens de envio de e-mail nunca foram processadas</li>
+					</ul>
+					<p>&nbsp;</p>
+					<p class="fragment" style="font-size:1.4em;"><em>solução: cada mensagem passou a ser processada por uma <strong>thread dedicada</strong></em></p>
+				</section>
+
+				<section data-background="#fbc8bd">
+					<h2>Fracasso #2: kd os scans?</h2>
+					<ul>
+						<li class="fragment">durante quase 12h, o backoffice parou de escanear arquivos enviados</li>
+						<li class="fragment">aplicação "dormiu" e ninguém notou</li>
+					</ul>
+					<p>&nbsp;</p>
+					<p class="fragment" style="font-size:1.4em;"><em>solução: criação de um novo serviço de Heartbeat cujo único propósito é evitar app recycles</strong></em></p>
+				</section>
+
+				<section data-background="#e2e3e5">
+					<h2>Fracasso #3: starvation</h2>
+					<ul>
+						<li class="fragment">fila para sincronizar informações com o Stack Overflow parou de ser processada</li>
+					</ul>
+					<p>&nbsp;</p>
+					<p class="fragment" style="font-size:1.4em;"><em>solução: sentar e esperar</em></p>
+					<img class="fragment" src="img/starving-queue.png"></img>
+					<small class="fragment" ><em>essa imagem ainda me dá um certo pânico</em></small>
+				</section>
+
+				<section>
+					<h2>Fracasso #4: redis clusters</h2>
+					<ul>
+						<li class="fragment">2 redis servers, 1 primário e 1 readonly</li>
+						<li class="fragment">Backoffice usa o cliente redis do ServiceStack - que não suporta redis clusters</li>
+						<li class="fragment">implementação própria pra notificar failovers é frágil</li>
+					</ul>
+					<img class="fragment" src="img/quote3.png" style="border:0; background:none; box-shadow:none; display:block; margin-left:auto; margin-right:auto"></img>
+				</section>
+
+				<section>
+					<h2>outras desvantagens</h2>
+					<ul>
+						<li>ServiceStack</li>
+						<li>ServiceStack.Text</li>
+						<li>ServiceStack.Orm</li>
+						<li>ServiceStack.Redis</li>
+						<li>ServiceStack.Common</li>
+						<li>5 dependências, 8 DLLs, + de 30k linhas de código</li>
+						<li>11 dos 28 serviços só pra monitoramento e debugging</li>
+					</ul>
+				</section>
+
+				<section data-background="#e2e3e5">
+					<h2>developers and sysadmins hate it!</h2>
+					<img src="img/nuke.png"></img>
+					<img src="img/sysadmins.png"></img>
+					<img src="img/quote5.png"></img>
+				</section>
+
+				<section data-background="white">
+					<h2>Solução: Reescrever como serviço Windows</h2>
+					<ul>
+						<li>single thread, dois loops. só!</li>
+						<li>remove complexidade desnecessária (IIS, ServiceStack)</li>
+						<li>executa localmente como console app, deployed como windows service em 3 máquinas</li>
+						<li>simplicidade > solução genérica</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>o novo fluxo</h2>
+					<ol>
+						<li>Timer dispara o processo</li>
+						<li>Loop iterando todas as filas existentes</li>
+						<li>Para cada fila, loop contínuo processando todas as mensagens</li>
+					</ol>
+					<img class="fragment" src="img/new-backoffice.png"></img>
+				</section>
+
+				<section data-background="#e2e3e5">
+					<h2>reliable queue pattern</h2>
+					<ul>
+						<li class="fragment">suporte nativo do redis através do comando RPOPLPUSH</li>
+						<li class="fragment">evita que uma mensagem se "perca" caso o serviço seja interrompido antes de finalizar seu processamento</li>
+						<li class="fragment">operação atômica pega a mensagem da fila de entrada e joga numa fila de processamento</li>
+					</ul>
+					<pre class="fragment"><code class="java">
+while ((json = redisDb.ListRightPopLeftPush(queueName, processingQueueKey)) != null)
+{
+    try
+    {
+        message = MessageSerializer.Deserialize(json, messageType);
+        ProcessMessage(message);
+    }
+    catch (Exception exception)
+    {
+        Log(exception);
+    }
+    finally
+    {
+        redisDb.ListRemove(processingQueueKey, json);
+        if(TimedOut(startTime)) break;
+    }
+}        </code></pre>						
+				</section>
+
+				<section>
+					<h2>Round Robin(ish)</h2>
+					<ul>
+						<li class="fragment">velho problema de starvation</li>
+						<li class="fragment">loop que itera entre as mensagens de uma fila é interrompido depois de 10 minutos</li>
+						<li class="fragment">graceful: nenhuma exceção é lançada</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Resultados legais</h2>
+					<ul>
+						<li>saímos de ~5k para 300 linhas de código no message broker</li>
+						<li>11 serviços inúteis eliminados</li>
+						<li>mais de 50 classes removidas</li>
+						<li>melhor performance em ~200% (em dev)</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Resultados legais</h2>
+					<ul>
+						<li>mantivemos o que fazia sentido</li>
+						<li>unificamos o cliente Redis, o JSON serializer e o ORM</li>
+					</ul>
+				</section>				
+
+				<section>
+					<h1>obrigada :)</h1>					
+				</section>
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: 'solarized',
+				transition: Reveal.getQueryHash().transition || 'linear', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Parallax scrolling
+				// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+				// parallaxBackgroundSize: '2100px 900px',
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
